@@ -8,7 +8,8 @@ const app = express();
 const PORT = 3000;
 
 /* Setup express middlewares */
-app.use(bodyParser.json());
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(allowCorsMiddleware);
 
 /* API */
@@ -29,10 +30,10 @@ app.listen(3000, () =>
 
 /* The mock 'database' */
 let games = [
-  { id: '23TplPdS', name: 'Dwarf Fortress' },
-  { id: '46Juzcyx', name: 'The Sims 2' },
-  { id: '2WEKaVNO', name: 'Elasto Mania' },
-  { id: 'nYrnfYEv', name: 'Team Fortress 2' },
+  { id: '23TplPdS', name: 'Dwarf Fortress', img: 'https://techcrunch.com/wp-content/uploads/2019/03/dwarf_fortress-1.jpg?w=1500&crop=1' },
+  { id: '46Juzcyx', name: 'The Sims 2', img:'https://upload.wikimedia.org/wikipedia/en/b/bd/The_sims_2.jpg' },
+  { id: '2WEKaVNO', name: 'Elasto Mania', img: 'https://d33wubrfki0l68.cloudfront.net/674fa7a49efc8946cb7b33bdfbaa8192bb78b3c8/1addb/images/header-1920x.jpg' },
+  { id: 'nYrnfYEv', name: 'Team Fortress 2', img:'https://upload.wikimedia.org/wikipedia/en/5/5f/Tf2_standalonebox.jpg' },
 ];
 
 /* IMPLEMENTATION DETAILS */
@@ -64,10 +65,12 @@ function getGame(req, res) {
  * Body: { "name": "Fresh Prince" } */
 function addGame(req, res) {
   const name = req.body.name;
-  if (!name) {
+  const img = req.body.img;
+  console.log(req)
+  if (!name || !img) {
     return res.status(401).end();
   }
-  const newGame = { id: shortid.generate(), name };
+  const newGame = { id: shortid.generate(), name, img };
   games = [...games, newGame];
   return res
     .status(201)
@@ -93,10 +96,11 @@ function deleteGame(req, res) {
 function editGame(req, res) {
   const id = req.params.id;
   const name = req.body.name;
-  if (!name || !id) {
+  const img = req.body.img;
+  if (!name || !id || !img) {
     return res.status(400).end();
   }
-  games = games.map(g => (g.id == id ? { ...g, name } : g));
+  games = games.map(g => (g.id == id ? { ...g, name, img } : g));
   return res
     .status(200)
     .json(games.find(g => g.id == id))
